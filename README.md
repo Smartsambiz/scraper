@@ -36,6 +36,44 @@ node src/index.js
 - Node.js 18+
 - npm
 
+### Enrichment endpoint
+
+Start the application with the model stub enabled:
+
+```bash
+LLM_STUB=1 node src/index.js
+```
+
+Valid request:
+
+```bash
+curl -i -X POST http://localhost:3000/enrich \
+   -H "Content-Type: application/json" \
+   -d '{"title":"The Hobbit","description":"A quiet hobbit named Bilbo Baggins goes on an unexpected quest to a distant mountain."}'
+```
+
+This returns `200 OK` with mock metadata matching the enrichment schema, for example:
+
+```json
+{
+   "genre": "fiction",
+   "audience": "general",
+   "summary": "A gripping story of survival and redemption.",
+   "confidence": 0.92,
+   "needs_review": false
+}
+```
+
+Invalid request:
+
+```bash
+curl -i -X POST http://localhost:3000/enrich \
+   -H "Content-Type: application/json" \
+   -d '{"title":123,"description":"A quiet hobbit named Bilbo Baggins goes on an unexpected quest to a distant mountain."}'
+```
+
+This returns `400 Bad Request` and identifies `title` as invalid. Validation happens before enrichment, so the invalid request does not make a model network call.
+
 ---
 
 ## Project Structure

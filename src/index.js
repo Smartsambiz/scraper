@@ -5,6 +5,8 @@ const path = require("node:path");
 const { z } = require("zod");
 const app = express();
 const port = 3000;
+const enrichRoute = require("./routes/enrich");
+
 
 app.get("/", (req, res) => {
     res.send("Welcome to Scraper App");
@@ -371,8 +373,8 @@ async function writeRunReport() {
     };
 
     await writeJsonFile(path.join(outputDir, "run-report.json"), report);
-    console.log("Execution summary:");
-    console.log(JSON.stringify(report, null, 2));
+    //console.log("Execution summary:");
+    //console.log(JSON.stringify(report, null, 2));
     return report;
 }
 
@@ -386,7 +388,7 @@ async function startApp() {
         console.log(`scraping page ${pageNum}`);
         try {
             const html = await getCache(pageNum);
-            console.log(`HTML length for page ${pageNum}: `, html.length);
+            //console.log(`HTML length for page ${pageNum}: `, html.length);
             const $ = cheerio.load(html);
 
             $("article.product_pod").each((index, book) => {
@@ -405,7 +407,7 @@ async function startApp() {
                 });
             });
         } catch (error) {
-            console.error(`Catalogue page ${pageNum} failed: ${error.message}`);
+            //console.error(`Catalogue page ${pageNum} failed: ${error.message}`);
             runStats.failed_pages += 1;
         }
     }
@@ -416,20 +418,24 @@ async function startApp() {
     await extractRawBookRecords(detailQueue);
 
     if (rawRecords.length > 0) {
-        console.log("Sample raw record:");
-        console.log(JSON.stringify(rawRecords[0], null, 2));
+        //console.log("Sample raw record:");
+        //console.log(JSON.stringify(rawRecords[0], null, 2));
     }
 
-    console.log("detail_pages=60");
+    //console.log("detail_pages=60");
     await runStage4();
     await writeRunReport();
 
     const finalReport = await fs.readFile(path.join(outputDir, "run-report.json"), "utf8");
     const parsedReport = JSON.parse(finalReport);
-    console.log(`failed_pages=${parsedReport.failed_pages}`);
-    console.log(`valid_records=${parsedReport.valid_records}`);
-    console.log(`checkpoint=${parsedReport.valid_records === 60 && parsedReport.failed_pages === 1}`);
+    //console.log(`failed_pages=${parsedReport.failed_pages}`);
+    //console.log(`valid_records=${parsedReport.valid_records}`);
+    //console.log(`checkpoint=${parsedReport.valid_records === 60 && parsedReport.failed_pages === 1}`);
 }
+
+
+
+app.use(express.json());
 
 app.get("/books", (req, res) => {
     const maxPrice = Number(req.query.maxPrice);
@@ -461,6 +467,8 @@ app.get("/books", (req, res) => {
 
     res.json(paginatedBooks);
 });
+
+app.use("/", enrichRoute)
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
