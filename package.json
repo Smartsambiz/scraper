@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/Smartsambiz/scraper#readme",
   "dependencies": {
+    "@openrouter/sdk": "^1.2.128",
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "nodemon": "^3.1.14",
+    "openai": "^7.15.0",
     "zod": "^4.4.3"
   }
 }
