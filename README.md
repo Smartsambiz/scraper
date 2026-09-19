@@ -41,7 +41,7 @@ node src/index.js
 Start the application with the model stub enabled:
 
 ```bash
-LLM_STUB=1 node src/index.js
+$env:LLM_STUB="1"; node src/index.js
 ```
 
 Valid request:

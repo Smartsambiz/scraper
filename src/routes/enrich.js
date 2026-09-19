@@ -1,34 +1,56 @@
 const router = require("express").Router();
-const {enrichRequestSchema, enrichBookMetadataSchema } = require("../llm/schema");
-const {FALLBACK_ENRICHMENT,
+const { z } = require("zod");
+const { enrichRequestSchema } = require("../llm/schema");
+const {
+    FALLBACK_ENRICHMENT,
     STUB_ENRICHMENT,
-    SHORT_CIRCUIT} = require("../llm/client");
+    SHORT_CIRCUIT,
+    enrichBook
+} = require("../llm/client");
 
-router.post("/enrich", (req, res)=>{
+router.post("/enrich", async (req, res) => {
     const result = enrichRequestSchema.safeParse(req.body);
 
-    if(!result.success){
+    if (!result.success) {
         return res.status(400).json({
             error: "invalid input",
-            field: result.error.treeifyError().fieldErrors
-            
-        })
+            field: z.treeifyError(result.error).properties
+        });
     }
 
-    const {title, description } = result.data;
-    
+    const { title, description } = result.data;
 
-    if(process.env.LLM_STUB === "1"){
-        return res.status(200).json(STUB_ENRICHMENT)
-    }
-    if(SHORT_CIRCUIT(title, description)){
+    if (SHORT_CIRCUIT(title, description)) {
         return res.status(200).json(FALLBACK_ENRICHMENT);
-    };
+    }
 
-    return res.status(200).json({
-        message: "LLM execustion placeholder"
-    })
-    
+    if (process.env.LLM_STUB === "1") {
+        return res.status(200).json(STUB_ENRICHMENT);
+    }
+
+    try {
+        const enriched = await enrichBook(title, description);
+        return res.status(200).json(enriched);
+    } catch (error) {
+        if (error?.status === 422) {
+            return res.status(422).json({
+                error: "unprocessable entity",
+                message: error.message
+            });
+        }
+
+        if (error?.status === 504) {
+            return res.status(504).json({
+                error: "gateway timeout",
+                message: error.message
+            });
+        }
+
+        return res.status(500).json({
+            error: "internal server error",
+            message: error?.message || "unknown error"
+        });
+    }
 });
 
 module.exports = router
