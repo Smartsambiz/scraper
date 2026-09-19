@@ -2,7 +2,7 @@ require("dotenv").config();
 const { enrichBookMetadataSchema } = require("./schema");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const promptPath = path.join(__dirname, "..", "..", "src", "prompts", "enrich-v1.md");
+const promptPath = path.join(__dirname, "..", "..", "src", "prompts", "enrich-v2.md");
 
 const { OpenAI } = require("openai");
 

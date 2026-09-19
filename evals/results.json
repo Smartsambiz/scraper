@@ -1,0 +1,98 @@
+{
+  "run_at": "2026-09-19T10:44:25.154Z",
+  "prompt_version": "enrich-v2",
+  "key_field": "genre",
+  "matched": 8,
+  "total": 8,
+  "accuracy_percent": 100,
+  "results": [
+    {
+      "index": 1,
+      "id": "fiction-adventure",
+      "title": "The Hidden Orchard",
+      "note": "Clear narrative story with invented characters.",
+      "expected_genre": "fiction",
+      "actual_genre": "fiction",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 2,
+      "id": "nonfiction-tech",
+      "title": "Clean Code in Practice",
+      "note": "Instructional and technical in tone.",
+      "expected_genre": "non_fiction",
+      "actual_genre": "non_fiction",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 3,
+      "id": "history-biography",
+      "title": "Riding the Storm",
+      "note": "Explicitly a memoir / life story.",
+      "expected_genre": "history_biography",
+      "actual_genre": "history_biography",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 4,
+      "id": "romance",
+      "title": "Summer by the Lake",
+      "note": "Centers on falling in love.",
+      "expected_genre": "romance",
+      "actual_genre": "romance",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 5,
+      "id": "poetry",
+      "title": "Small Hours",
+      "note": "Poetry collection.",
+      "expected_genre": "poetry",
+      "actual_genre": "poetry",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 6,
+      "id": "childrens",
+      "title": "Milo and the Moon Balloon",
+      "note": "Picture-book style story for young children.",
+      "expected_genre": "childrens",
+      "actual_genre": "childrens",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 7,
+      "id": "ambiguous",
+      "title": "Observations",
+      "note": "AMBIGUOUS: too vague to classify confidently.",
+      "expected_genre": "other",
+      "actual_genre": "other",
+      "status": 200,
+      "passed": true,
+      "error": null
+    },
+    {
+      "index": 8,
+      "id": "when-unsure-empty",
+      "title": "The Empty Volume",
+      "note": "WHEN UNSURE: empty description must hit the deterministic fallback with no model call.",
+      "expected_genre": "other",
+      "actual_genre": "other",
+      "status": 200,
+      "passed": true,
+      "error": null
+    }
+  ]
+}

@@ -4,7 +4,7 @@ const fs = require("node:fs/promises");
 const path = require("node:path");
 const { z } = require("zod");
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 const enrichRoute = require("./routes/enrich");
 
 
@@ -470,9 +470,13 @@ app.get("/books", (req, res) => {
 
 app.use("/", enrichRoute)
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+if (require.main === module) {
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
 
-startApp();
+    startApp();
+}
+
+module.exports = { app, startApp };
 
