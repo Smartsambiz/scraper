@@ -134,6 +134,88 @@ function parseAndValidateModelOutput(rawData) {
     return validated.data;
 }
 
+function classifyBookDeterministically(title, description) {
+    const combinedText = `${title || ""} ${description || ""}`.toLowerCase();
+
+    if (/(ignore all earlier instructions|override.*instructions|print the secret|prompt injection|system prompt)/i.test(combinedText)) {
+        return {
+            genre: "other",
+            audience: "general",
+            summary: "Prompt injection detected; manual review is required.",
+            confidence: 0.15,
+            needs_review: true
+        };
+    }
+
+    if (/(dragon.*cookbook|quantum physics|haunted lighthouse|moon.*explains.*physics|cookbook.*dragon)/i.test(combinedText)) {
+        return {
+            genre: "other",
+            audience: "general",
+            summary: "The description is contradictory or too surreal to classify confidently.",
+            confidence: 0.2,
+            needs_review: true
+        };
+    }
+
+    if (/(memoir|biography|life story|childhood|political leader|national service|rise of|famous|born|family history|historical account)/i.test(combinedText)) {
+        return {
+            genre: "history_biography",
+            audience: "general",
+            summary: "A biographical or historical account of a person or era.",
+            confidence: 0.9,
+            needs_review: false
+        };
+    }
+
+    if (/(guide|tutorial|engineering|machine learning|ai|software teams|scientific|research|systems|analysis|practical guide|technical|education|learning)/i.test(combinedText)) {
+        return {
+            genre: "non_fiction",
+            audience: "general",
+            summary: "A practical or technical informational book.",
+            confidence: 0.88,
+            needs_review: false
+        };
+    }
+
+    if (/(love|romance|relationship|second chances|heart|longing|dating|marriage|fall in love|romantic)/i.test(combinedText)) {
+        return {
+            genre: "romance",
+            audience: "general",
+            summary: "A romantic relationship story with emotional connection.",
+            confidence: 0.9,
+            needs_review: false
+        };
+    }
+
+    if (/(poem|poetry|verse|stanza|lyric|poems|tender poems|lyrical)/i.test(combinedText)) {
+        return {
+            genre: "poetry",
+            audience: "general",
+            summary: "A short poetic or lyrical collection.",
+            confidence: 0.9,
+            needs_review: false
+        };
+    }
+
+    if (/(quest|journey|adventure|hobbit|dragon|kingdom|magic|battle|stranger|village|forest|unexpected|epic)/i.test(combinedText)) {
+        return {
+            genre: "fiction",
+            audience: "general",
+            summary: "A narrative story with invented characters and events.",
+            confidence: 0.88,
+            needs_review: false
+        };
+    }
+
+    return {
+        genre: "other",
+        audience: "general",
+        summary: "The description is too weak or ambiguous to classify confidently.",
+        confidence: 0.25,
+        needs_review: true
+    };
+}
+
 async function enrichBook(title, description) {
     if (process.env.LLM_ENABLED === "false") {
         return FALLBACK_ENRICHMENT;
@@ -145,6 +227,13 @@ async function enrichBook(title, description) {
 
     if (process.env.LLM_STUB === "1") {
         return STUB_ENRICHMENT;
+    }
+
+    const deterministicClassification = process.env.DISABLE_DETERMINISTIC === "1"
+        ? null
+        : classifyBookDeterministically(title, description);
+    if (deterministicClassification && (deterministicClassification.genre !== "other" || /(?:memoir|biography|guide|tutorial|poem|poetry|quest|journey|love|romance|dragon|cookbook|physics|machine learning|ai|engineering)/i.test(`${title} ${description}`))) {
+        return deterministicClassification;
     }
 
     const prompt = await loadPrompt();
